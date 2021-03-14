@@ -6,7 +6,7 @@
 
 ## :scroll: Description
 Compose is great, I'm looking forward to the next studio version.
-
+Maybe my phone/pc is too old but the actual layouts end up not matching the preview as shown in the results video.
 
 ## :bulb: Motivation and Context
 

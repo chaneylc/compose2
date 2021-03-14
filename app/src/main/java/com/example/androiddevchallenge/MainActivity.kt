@@ -18,13 +18,13 @@ package com.example.androiddevchallenge
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,21 +34,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.rememberSwipeableState
+import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -58,6 +60,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,13 +74,50 @@ import com.example.androiddevchallenge.ui.theme.white
 import com.example.androiddevchallenge.ui.theme.yellow
 
 class MainActivity : AppCompatActivity() {
+    @ExperimentalMaterialApi
+    @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MyTheme {
-                MyApp(false)
-                Login(false)
-                Home(true)
+            MyApp()
+        }
+    }
+}
+
+enum class State { WELCOME, LOGIN, HOME }
+// composable driver for flow logic
+@ExperimentalMaterialApi
+@ExperimentalAnimationApi
+@Composable
+fun MyApp() {
+
+    // initialize a list of stocks based on the available resourcess
+    val stocks = listOf(
+        Stock("$7,918", -0.54, "Alaska Air Group, Inc.", "ALK", R.drawable.ic_home_alk),
+        Stock("$1,293", 4.18, "Boeing Co.", "BA", R.drawable.ic_home_ba),
+        Stock("$893.50", -0.54, "Delta Airlines Inc.", "DAL", R.drawable.ic_home_dal),
+        Stock("$12,301", 2.51, "Expedia Group Inc.", "EXPE", R.drawable.ic_home_exp),
+        Stock("$12,301", 1.38, "Airbus SE", "EADSY", R.drawable.ic_home_eadsy),
+        Stock("$8,521", 1.56, "Jetblue Airways Corp.", "JBLU", R.drawable.ic_home_jblu),
+        Stock("$521", 2.75, "Marriot International Inc.", "MAR", R.drawable.ic_home_mar),
+        Stock("$5,481", 0.14, "Carnival Corp", "CCL", R.drawable.ic_home_ccl),
+        Stock("$9,184", 1.69, "Royal Caribbean Cruises", "RCL", R.drawable.ic_home_rcl),
+        Stock("$1", -0.42, "CC App Development", "CLC", R.drawable.ic_home_trvl),
+    )
+    MyTheme {
+        var state = rememberSaveable { mutableStateOf(State.WELCOME) }
+        AnimatedVisibility(state.value == State.WELCOME) {
+            Welcome {
+                state.value = State.LOGIN
+            }
+        }
+        AnimatedVisibility(visible = state.value == State.LOGIN) {
+            Login {
+                state.value = State.HOME
+            }
+        }
+        AnimatedVisibility(visible = state.value == State.HOME) {
+            Home(stocks) {
             }
         }
     }
@@ -85,14 +125,13 @@ class MainActivity : AppCompatActivity() {
 
 // // Start building your app here!
 @Composable
-fun MyApp(visible: Boolean) {
+fun Welcome(onClick: () -> Unit) {
 
     with(LocalContext.current) {
 
         Surface(
             Modifier
                 .fillMaxSize()
-                .alpha(if (visible) 1f else 0f)
                 .border(2.dp, purple, shape = shapes.large),
             color = MaterialTheme.colors.background, shape = shapes.large
         ) {
@@ -114,8 +153,7 @@ fun MyApp(visible: Boolean) {
         }
         Column(
             Modifier
-                .padding(8.dp)
-                .alpha(if (visible) 1f else 0f),
+                .padding(8.dp),
             verticalArrangement = Arrangement.Bottom
         ) {
 
@@ -138,7 +176,7 @@ fun MyApp(visible: Boolean) {
                     )
                 }
                 Button(
-                    onClick = {},
+                    onClick = onClick,
                     Modifier
                         // this border doesn't line up with the button
                         .border(1.dp, colors.primary, shape = shapes.medium)
@@ -162,14 +200,13 @@ fun MyApp(visible: Boolean) {
 }
 
 @Composable
-fun Login(visible: Boolean) {
+fun Login(onClick: () -> Unit) {
 
     with(LocalContext.current) {
 
         Card(
             Modifier
                 .fillMaxSize()
-                .alpha(if (visible) 1f else 0f)
         ) {
 
             Surface {
@@ -249,7 +286,7 @@ fun Login(visible: Boolean) {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
-                        onClick = {},
+                        onClick = onClick,
                         Modifier
                             .padding(0.dp, 16.dp, 0.dp, 0.dp)
                             .requiredHeight(48.dp)
@@ -268,14 +305,17 @@ fun Login(visible: Boolean) {
     }
 }
 
+// quick class to represent the list item
+data class Stock(val current: String, val diff: Double, val name: String, val alias: String, val resource: Int)
+
+@ExperimentalMaterialApi
 @Composable
-fun StockList(visible: Boolean, stocks: List<Stock>) {
+fun StockList(stocks: List<Stock>) {
     Column(
         Modifier
             .wrapContentHeight()
             .background(colors.surface)
-            .alpha(if (visible) 1f else 0f)
-            .verticalScroll(ScrollState(0), true)
+        // .verticalScroll(ScrollState(0), true)
     ) {
         stocks.forEach { stock ->
             Divider()
@@ -370,15 +410,16 @@ fun ChipColumn(index: Int, name: String) {
 }
 
 // Start building your app here!
+@ExperimentalAnimationApi
+@ExperimentalMaterialApi
 @Composable
-fun Home(visible: Boolean) {
+fun Home(stocks: List<Stock>, onClick: () -> Unit) {
     with(LocalContext.current) {
 
         Card(
             Modifier
-                .alpha(if (visible) 1f else 0f)
-                .fillMaxSize()
-                .scrollable(ScrollState(0), Orientation.Vertical),
+                .fillMaxSize(),
+//                .scrollable(ScrollState(0), Orientation.Vertical),
             backgroundColor = colors.background
         ) {
 
@@ -495,17 +536,30 @@ fun Home(visible: Boolean) {
                     )
                 }
 
+                val squareSize = 96.dp
+                val swipeableState = rememberSwipeableState(0)
+                val sizePx = with(LocalDensity.current) { squareSize.toPx() }
+                val anchors = mapOf(0f to 1, sizePx to 0) // Maps anchor points (in px) to states
+
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight()
-                        .requiredSize(512.dp, 100.dp)
-                        .padding(8.dp, 0.dp, 0.dp, 0.dp),
+                        .fillMaxHeight(),
+                    // .requiredSize(512.dp, 100.dp)
+                    // .padding(8.dp, 0.dp, 0.dp, 0.dp),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Button(
-                        onClick = { }, Modifier.weight(1.0f),
+                        onClick = { },
+                        Modifier
+                            .weight(1.0f)
+                            .swipeable(
+                                state = swipeableState,
+                                anchors = anchors,
+                                thresholds = { from, to -> FractionalThreshold(0.3f) },
+                                orientation = Orientation.Vertical
+                            ),
                         shape = shapes.small,
                         colors = ButtonDefaults.buttonColors(
                             backgroundColor = white
@@ -520,58 +574,27 @@ fun Home(visible: Boolean) {
                         )
                     }
                 }
+
+                AnimatedVisibility(visible = swipeableState.currentValue != swipeableState.targetValue) {
+                    StockList(stocks = stocks)
+                }
             }
         }
     }
 }
 
-// quick class to represent the list item
-data class Stock(val current: String, val diff: Double, val name: String, val alias: String, val resource: Int)
-
+@ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Preview("Light Theme", widthDp = 360, heightDp = 640)
 @Composable
 fun LightPreview() {
-    val stocks = listOf(
-        Stock("$7,918", -0.54, "Alaska Air Group, Inc.", "ALK", R.drawable.ic_home_alk),
-        Stock("$1,293", 4.18, "Boeing Co.", "BA", R.drawable.ic_home_ba),
-        Stock("$893.50", -0.54, "Delta Airlines Inc.", "DAL", R.drawable.ic_home_dal),
-        Stock("$12,301", 2.51, "Expedia Group Inc.", "EXPE", R.drawable.ic_home_exp),
-        Stock("$12,301", 1.38, "Airbus SE", "EADSY", R.drawable.ic_home_eadsy),
-        Stock("$8,521", 1.56, "Jetblue Airways Corp.", "JBLU", R.drawable.ic_home_jblu),
-        Stock("$521", 2.75, "Marriot International Inc.", "MAR", R.drawable.ic_home_mar),
-        Stock("$5,481", 0.14, "Carnival Corp", "CCL", R.drawable.ic_home_ccl),
-        Stock("$9,184", 1.69, "Royal Caribbean Cruises", "RCL", R.drawable.ic_home_rcl),
-        Stock("$1", -0.42, "CC App Development", "CLC", R.drawable.ic_home_trvl),
-    )
-    MyTheme {
-        MyApp(false)
-        Login(false)
-        Home(false)
-        StockList(true, stocks)
-    }
+    MyApp()
 }
 
-@ExperimentalAnimationApi
-@Preview("Dark Theme", widthDp = 360, heightDp = 640)
-@Composable
-fun DarkPreview() {
-    val stocks = listOf(
-        Stock("$7,918", -0.54, "Alaska Air Group, Inc.", "ALK", R.drawable.ic_home_alk),
-        Stock("$1,293", 4.18, "Boeing Co.", "BA", R.drawable.ic_home_ba),
-        Stock("$893.50", -0.54, "Delta Airlines Inc.", "DAL", R.drawable.ic_home_dal),
-        Stock("$12,301", 2.51, "Expedia Group Inc.", "EXPE", R.drawable.ic_home_exp),
-        Stock("$12,301", 1.38, "Airbus SE", "EADSY", R.drawable.ic_home_eadsy),
-        Stock("$8,521", 1.56, "Jetblue Airways Corp.", "JBLU", R.drawable.ic_home_jblu),
-        Stock("$521", 2.75, "Marriot International Inc.", "MAR", R.drawable.ic_home_mar),
-        Stock("$5,481", 0.14, "Carnival Corp", "CCL", R.drawable.ic_home_ccl),
-        Stock("$9,184", 1.69, "Royal Caribbean Cruises", "RCL", R.drawable.ic_home_rcl),
-        Stock("$1", -0.42, "CC App Development", "CLC", R.drawable.ic_home_trvl),
-    )
-    MyTheme(darkTheme = true) {
-        MyApp(false)
-        Login(false)
-        Home(false)
-        StockList(true, stocks)
-    }
-}
+// @ExperimentalMaterialApi
+// @ExperimentalAnimationApi
+// @Preview("Dark Theme", widthDp = 360, heightDp = 640)
+// @Composable
+// fun DarkPreview() {
+//    MyApp()
+// }
