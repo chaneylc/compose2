@@ -23,3 +23,5 @@ val purple = Color(0xFF322049)
 val white = Color(0xFFFFFFFF)
 val green = Color(0xFF39A844)
 val red = Color(0xFFD93C19)
+
+val transparent = Color(0x00000000)

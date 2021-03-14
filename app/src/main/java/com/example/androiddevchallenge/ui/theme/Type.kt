@@ -15,15 +15,17 @@
  */
 package com.example.androiddevchallenge.ui.theme
 
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import com.example.androiddevchallenge.R
+
+val buttonLineSpacing: Long = 1.25.toLong()
 
 // Set of Material typography styles to start with
 val typography = Typography(
@@ -34,7 +36,26 @@ val typography = Typography(
         fontSize = 16.sp
     ),
     button = TextStyle(
-        fontSize = 13.sp
+        fontSize = 13.sp,
+        // no way to make all caps?
+        fontFamily = FontFamily(Font(R.font.montserrat_bold, style = FontStyle.Normal.apply { })),
+        letterSpacing = TextUnit.Unspecified
+    ),
+    subtitle1 = TextStyle(
+        fontSize = 15.sp,
+        fontFamily = FontFamily(Font(R.font.montserrat_medium))
+    ),
+    h2 = TextStyle(
+        fontSize = 36.sp,
+        fontFamily = FontFamily(Font(R.font.montserrat_extrabold))
+    ),
+    h3 = TextStyle(
+        fontSize = 13.sp,
+        fontFamily = FontFamily(Font(R.font.montserrat_semibold))
+    ),
+    body2 = TextStyle(
+        fontSize = 13.sp,
+        fontFamily = FontFamily(Font(R.font.montserrat_light))
     )
         /* Other default text styles to override
     button = TextStyle(

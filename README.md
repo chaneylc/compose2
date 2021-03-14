@@ -4,19 +4,17 @@
 <!--- You can find both of these in the url bar when you open your repository in github. -->
 ![Workflow result](https://github.com/chaneylc/compose2/workflows/Check/badge.svg)
 
-
 ## :scroll: Description
-Incomplete 'speed-run' compose project. Only spent time equal to what it would take without compose. Android Studio crashes.
-What's more scary is when previews are inconsistent with the device layout. Overall, I really like compose but some parts
-are confusing and it's hard to learn when the studio crashes or previews lag.
+Compose is great, I'm looking forward to the next studio version.
 
 
 ## :bulb: Motivation and Context
-I tried to use a list parameter to create the home page chip row. Ended up with some weird layouts causing the last button to extend vertically.
 
 ## :camera_flash: Screenshots
 <!-- You can add more screenshots here if you like -->
 <img src="/results/screenshot_1.png" width="260">&emsp;<img src="/results/screenshot_2.png" width="260">
+<img src="/results/screenshot_3.png" width="260">&emsp;<img src="/results/img.png" width="260">
+<img src="/results/img_5.png" width="260">&emsp;<img src="/results/img_4.png" width="260">
 
 ## License
 ```
